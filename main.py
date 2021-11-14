@@ -7,6 +7,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from staticmap import StaticMap, CircleMarker
 import config
+import requests
 
 bot = Bot()
 bot.login(username = config.LOGIN, password = config.PASSWORD)
@@ -25,6 +26,12 @@ resultat_people = json.loads(data_people.read())
 url_pos = "http://api.open-notify.org/iss-now.json"
 data_pos = urllib.request.urlopen(url_pos)
 resultat_pos = json.loads(data_pos.read())
+
+if os.path.exists(filename) != True:
+	data = requests.get('http://api.open-notify.org/astros.json')
+	data = data.json()
+	with open('people_before.json', 'w') as f:
+		json.dump(data, f)
 
 with open(filename, "r") as file:
 	resultat_before = json.load(file)
@@ -127,9 +134,9 @@ elif people_arrive == [] and people_go == []:
 		draw.text((15, a),f"{p}",(0,0,0),font=font)
 		a = a + 25
 
-draw.text((15, 20),"Number of people:",(0,0,0),font=font)
+draw.text((15, 20),"Number of persons:",(0,0,0),font=font)
 draw.text((199, 21),f"{num_in}",(255,0,0),font=font)
-draw.text((15, 55),"List:",(57,122,0),font=font)
+draw.text((15, 55),"Names:",(57,122,0),font=font)
 draw.text((332, 178),"Map",(0,0,0),font=font)
 draw.text((313, 20),"Position",(0,0,0),font=font)
 draw.text((260, 55),"Latitude:",(0,0,0),font=font)
@@ -146,8 +153,10 @@ back_im = im2.copy()
 back_im.paste(im1, (240, 200))
 back_im.save('final.jpg', quality=95)
 
-os.system("rm picture.png && rm marker.png")
+os.remove("picture.png")
+os.remove("marker.png")
 
 bot.upload_photo("final.jpg")
 
-os.system("rm -rf config && rm final.jpg.REMOVE_ME")
+os.remove("config")
+os.remove("final.jpg.REMOVE_ME")
